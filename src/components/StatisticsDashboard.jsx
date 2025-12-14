@@ -150,9 +150,7 @@ const StatisticsDashboard = ({ combinedStats, individualStats, onRefresh }) => {
     <div className="statistics-dashboard">
       {/* Both Clinics Overview - Now as Graphs */}
       <div className="stats-section combined-stats">
-        <div className="graph-header">
-          <h3 className="section-title">Clinics Overview</h3>
-          <p className="graph-subtitle">Staff distribution across Manila and CDO clinics</p>
+        <div className="graph-header">        
         </div>
         
         <div className="graphs-grid">
