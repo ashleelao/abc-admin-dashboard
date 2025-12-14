@@ -338,7 +338,6 @@ const StaffForm = ({ onSubmit, initialData, clinicId, onCancel, isCombinedView =
         </div>
         {!isEditing && (
           <small style={{ display: 'block', marginTop: '1rem', color: '#7f8c8d', fontStyle: 'italic' }}>
-            Note: Password will be auto-generated (staff ID) and must be changed on first login
           </small>
         )}
       </div>
