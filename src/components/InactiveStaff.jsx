@@ -3,10 +3,15 @@ import api from '../services/api';
 
 const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
   const [staff, setStaff] = useState([]);
+  const [filteredStaff, setFilteredStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [restoringStaff, setRestoringStaff] = useState(null);
+  
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [clinicFilter, setClinicFilter] = useState('all');
 
   const fetchStaff = async () => {
     try {
@@ -24,10 +29,13 @@ const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
         ];
         
         setStaff(combinedData);
+        setFilteredStaff(combinedData);
       } else {
         const data = await api.getInactiveStaff(clinicId);
         const staffData = Array.isArray(data) ? data : (data?.staff || []);
-        setStaff(staffData.map(staffMember => ({ ...staffMember, clinic: clinicId })));
+        const staffWithClinic = staffData.map(staffMember => ({ ...staffMember, clinic: clinicId }));
+        setStaff(staffWithClinic);
+        setFilteredStaff(staffWithClinic);
       }
       
       setError('');
@@ -42,6 +50,31 @@ const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
   useEffect(() => {
     fetchStaff();
   }, [clinicId]);
+
+  // Apply filters whenever search term or clinic filter changes
+  useEffect(() => {
+    let result = staff;
+    
+    // Apply search filter
+    if (searchTerm) {
+      const lowercasedSearch = searchTerm.toLowerCase();
+      result = result.filter(staffMember =>
+        staffMember.full_name?.toLowerCase().includes(lowercasedSearch) ||
+        staffMember.email?.toLowerCase().includes(lowercasedSearch) ||
+        staffMember.staff_id?.toLowerCase().includes(lowercasedSearch) ||
+        staffMember.department?.toLowerCase().includes(lowercasedSearch) ||
+        staffMember.specialization?.toLowerCase().includes(lowercasedSearch) ||
+        staffMember.deactivation_reason?.toLowerCase().includes(lowercasedSearch)
+      );
+    }
+    
+    // Apply clinic filter
+    if (clinicFilter !== 'all') {
+      result = result.filter(staffMember => staffMember.clinic === clinicFilter);
+    }
+    
+    setFilteredStaff(result);
+  }, [searchTerm, clinicFilter, staff]);
 
   useEffect(() => {
     if (success) {
@@ -98,6 +131,12 @@ const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
     </span>
   );
 
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchTerm('');
+    setClinicFilter('all');
+  };
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -124,7 +163,7 @@ const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
 
       {/* Header */}
       <div className="section-header" style={{ borderBottom: 'none', marginBottom: '1rem', alignItems: 'flex-start' }}>
-        <div>
+        <div style={{ flex: 1 }}>
           <p className="section-description">
             {clinicId === 'combined'
               ? 'View and restore deactivated staff members from both Manila and CDO clinics.'
@@ -133,22 +172,124 @@ const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
             Restored staff will regain system access.
           </p>
           <p style={{ fontSize: '0.9rem', color: '#e74c3c', marginTop: '0.5rem', fontWeight: '500' }}>
-            {staff.length} inactive staff member{staff.length !== 1 ? 's' : ''}
+            {filteredStaff.length} inactive staff member{filteredStaff.length !== 1 ? 's' : ''} found
             {clinicId === 'combined' && ' across both clinics'}
+            {(searchTerm || clinicFilter !== 'all') && ' (filtered)'}
           </p>
         </div>
       </div>
 
+      {/* Search and Filter Bar */}
+      <div className="filter-bar" style={{ 
+        background: 'white', 
+        padding: '1rem', 
+        borderRadius: '8px', 
+        marginBottom: '1.5rem',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        display: 'flex',
+        gap: '1rem',
+        flexWrap: 'wrap',
+        alignItems: 'center'
+      }}>
+        <div style={{ flex: 1, minWidth: '300px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search by name, email, ID, department, specialization, or reason..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                flex: 1,
+                padding: '0.75rem 1rem',
+                border: '2px solid #e9ecef',
+                borderRadius: '8px',
+                fontSize: '0.95rem',
+                transition: 'all 0.3s ease'
+              }}
+            />
+          </div>
+        </div>
+        
+        {clinicId === 'combined' && (
+          <div style={{ minWidth: '150px' }}>
+            <select
+              value={clinicFilter}
+              onChange={(e) => setClinicFilter(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.75rem 1rem',
+                border: '2px solid #e9ecef',
+                borderRadius: '8px',
+                fontSize: '0.95rem',
+                background: 'white',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="all">All Clinics</option>
+              <option value="MNL">Manila Only</option>
+              <option value="CDO">CDO Only</option>
+            </select>
+          </div>
+        )}
+        
+        {(searchTerm || clinicFilter !== 'all') && (
+          <button
+            onClick={clearFilters}
+            style={{
+              padding: '0.75rem 1rem',
+              background: '#f8f9fa',
+              border: '2px solid #e9ecef',
+              borderRadius: '8px',
+              fontSize: '0.95rem',
+              fontWeight: '500',
+              color: '#7f8c8d',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            Clear Filters
+          </button>
+        )}
+      </div>
+
       {/* Staff List - Grid Layout */}
-      {staff.length === 0 ? (
+      {filteredStaff.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state-icon">✅</div>
-          <p className="empty-state-text">No inactive staff members</p>
-          <p className="empty-state-subtext">All staff are currently active</p>
+          <p className="empty-state-text">
+            {searchTerm || clinicFilter !== 'all'
+              ? 'No inactive staff members match your search criteria' 
+              : 'No inactive staff members'}
+          </p>
+          <p className="empty-state-subtext">
+            {searchTerm || clinicFilter !== 'all'
+              ? 'Try adjusting your search or filters' 
+              : 'All staff are currently active'}
+          </p>
+          {(searchTerm || clinicFilter !== 'all') && (
+            <button
+              onClick={clearFilters}
+              className="action-button secondary-button"
+              style={{ marginTop: '1rem' }}
+            >
+              Clear All Filters
+            </button>
+          )}
         </div>
       ) : (
         <div className="staff-grid">
-          {staff.map((staffMember) => (
+          {filteredStaff.map((staffMember) => (
             <div key={`${staffMember.clinic}-${staffMember.staff_id}`} className="staff-card inactive-card">
               <div className="staff-card-header">
                 <div className="staff-identity">
@@ -228,6 +369,8 @@ const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
                 This will grant them access to the system again.
                 <br />
                 <strong>Clinic: {restoringStaff.clinic === 'MNL' ? 'Manila' : 'CDO'}</strong>
+                <br />
+                <strong>Role: {restoringStaff.role}</strong>
               </p>
             </div>
             

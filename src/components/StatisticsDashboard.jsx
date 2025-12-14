@@ -95,42 +95,50 @@ const StatisticsDashboard = ({ combinedStats, individualStats, onRefresh }) => {
     );
   };
 
-  // Pie chart component for clinic comparison
+  // Pie chart component for clinic comparison - FIXED SHAPE ONLY
   const ClinicComparisonChart = () => {
     const manilaTotal = individualStats.MNL.totalActive;
     const cdoTotal = individualStats.CDO.totalActive;
     const total = manilaTotal + cdoTotal;
     
+    const manilaPercentage = total > 0 ? (manilaTotal / total) * 100 : 0;
+    const cdoPercentage = total > 0 ? (cdoTotal / total) * 100 : 0;
+    
     return (
       <div className="pie-chart-container">
         <div className="pie-chart">
           <div className="pie-chart-visual">
-            <div className="pie-segment manila-segment" 
-              style={{ '--percentage': `${(manilaTotal / total) * 100}%` }}>
+            {/* FIXED: Use conic-gradient for perfect circle shape */}
+            <div 
+              className="pie-chart-circle" 
+              style={{
+                background: `conic-gradient(
+                  #3498db 0deg ${(manilaPercentage / 100) * 360}deg,
+                  #9b59b6 ${(manilaPercentage / 100) * 360}deg 360deg
+                )`
+              }}
+            >
+              <div className="pie-chart-center">
+                <div className="pie-center-value">{total}</div>
+                <div className="pie-center-label">Total Active</div>
+              </div>
             </div>
-            <div className="pie-segment cdo-segment" 
-              style={{ '--percentage': `${(cdoTotal / total) * 100}%` }}>
-            </div>
-          </div>
-          <div className="pie-chart-center">
-            <div className="pie-center-value">{total}</div>
-            <div className="pie-center-label">Total Active</div>
           </div>
         </div>
         
         <div className="pie-chart-legend">
           <div className="legend-item">
-            <div className="legend-color manila-color"></div>
+            <div className="legend-color manila-color" style={{ background: '#3498db' }}></div>
             <div className="legend-text">
               <span className="legend-label">Manila Clinic</span>
-              <span className="legend-value">{manilaTotal} ({((manilaTotal / total) * 100 || 0).toFixed(1)}%)</span>
+              <span className="legend-value">{manilaTotal} ({manilaPercentage.toFixed(1)}%)</span>
             </div>
           </div>
           <div className="legend-item">
-            <div className="legend-color cdo-color"></div>
+            <div className="legend-color cdo-color" style={{ background: '#9b59b6' }}></div>
             <div className="legend-text">
               <span className="legend-label">CDO Clinic</span>
-              <span className="legend-value">{cdoTotal} ({((cdoTotal / total) * 100 || 0).toFixed(1)}%)</span>
+              <span className="legend-value">{cdoTotal} ({cdoPercentage.toFixed(1)}%)</span>
             </div>
           </div>
         </div>

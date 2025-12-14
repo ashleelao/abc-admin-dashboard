@@ -378,6 +378,70 @@ const AdminDashboard = () => {
                   
                   <div className="revenue-filters-grid">
                     <div className="filter-group">
+                      {/* DATE PRESETS ON LEFT SIDE ABOVE START DATE */}
+                      <div style={{ 
+                        marginBottom: '1.5rem',
+                        display: 'flex',
+                        gap: '0.75rem',
+                        alignItems: 'center'
+                      }}>
+                        <span style={{ 
+                          fontSize: '0.95rem', 
+                          fontWeight: '600', 
+                          color: '#2c3e50',
+                          marginRight: '0.5rem'
+                        }}>
+                          Quick Filter:
+                        </span>
+                        <button
+                          type="button"
+                          className="preset-button"
+                          onClick={() => {
+                            const endDate = new Date();
+                            const startDate = new Date();
+                            startDate.setDate(startDate.getDate() - 7);
+                            setRevenueFilters({
+                              ...revenueFilters,
+                              startDate: startDate.toISOString().split('T')[0],
+                              endDate: endDate.toISOString().split('T')[0]
+                            });
+                          }}
+                        >
+                          Last 7 Days
+                        </button>
+                        <button
+                          type="button"
+                          className="preset-button"
+                          onClick={() => {
+                            const endDate = new Date();
+                            const startDate = new Date();
+                            startDate.setDate(startDate.getDate() - 30);
+                            setRevenueFilters({
+                              ...revenueFilters,
+                              startDate: startDate.toISOString().split('T')[0],
+                              endDate: endDate.toISOString().split('T')[0]
+                            });
+                          }}
+                        >
+                          Last 30 Days
+                        </button>
+                        <button
+                          type="button"
+                          className="preset-button"
+                          onClick={() => {
+                            const today = new Date();
+                            const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                            setRevenueFilters({
+                              ...revenueFilters,
+                              startDate: startDate.toISOString().split('T')[0],
+                              endDate: today.toISOString().split('T')[0]
+                            });
+                          }}
+                        >
+                          This Month
+                        </button>
+                      </div>
+                      
                       <div className="filter-item">
                         <label className="filter-label">
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -471,56 +535,6 @@ const AdminDashboard = () => {
                       </svg>
                       {revenueLoading ? 'Generating Report...' : 'Generate Revenue Report'}
                     </button>
-                    
-                    <div className="date-presets">
-                      <button
-                        type="button"
-                        className="preset-button"
-                        onClick={() => {
-                          const endDate = new Date();
-                          const startDate = new Date();
-                          startDate.setDate(startDate.getDate() - 7);
-                          setRevenueFilters({
-                            ...revenueFilters,
-                            startDate: startDate.toISOString().split('T')[0],
-                            endDate: endDate.toISOString().split('T')[0]
-                          });
-                        }}
-                      >
-                        Last 7 Days
-                      </button>
-                      <button
-                        type="button"
-                        className="preset-button"
-                        onClick={() => {
-                          const endDate = new Date();
-                          const startDate = new Date();
-                          startDate.setDate(startDate.getDate() - 30);
-                          setRevenueFilters({
-                            ...revenueFilters,
-                            startDate: startDate.toISOString().split('T')[0],
-                            endDate: endDate.toISOString().split('T')[0]
-                          });
-                        }}
-                      >
-                        Last 30 Days
-                      </button>
-                      <button
-                        type="button"
-                        className="preset-button"
-                        onClick={() => {
-                          const today = new Date();
-                          const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-                          setRevenueFilters({
-                            ...revenueFilters,
-                            startDate: startDate.toISOString().split('T')[0],
-                            endDate: today.toISOString().split('T')[0]
-                          });
-                        }}
-                      >
-                        This Month
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>
