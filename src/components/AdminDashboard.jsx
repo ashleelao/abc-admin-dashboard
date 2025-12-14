@@ -154,14 +154,7 @@ const AdminDashboard = () => {
       {/* Header with user info and logout */}
       <header className="admin-header">
         <div className="header-left">
-          <div>
-            <h1 className="admin-header-title">ABC Clinics - Administration Dashboard</h1>
-            <p className="admin-header-subtitle">Comprehensive management system for clinics</p>
-          </div>
-        </div>
-        
-        {/* Admin info and logout button */}
-        <div className="header-right">
+          {/* Admin info moved to left side */}
           <div className="admin-user-info">
             <div className="admin-user-avatar">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -174,6 +167,10 @@ const AdminDashboard = () => {
               <span className="admin-user-role">{adminInfo.role}</span>
             </div>
           </div>
+        </div>
+        
+        {/* Logout button only */}
+        <div className="header-right">
           <button 
             className="logout-button"
             onClick={() => setShowLogoutConfirm(true)}
@@ -189,7 +186,7 @@ const AdminDashboard = () => {
         </div>
       </header>
 
-      {/* Logout Confirmation Modal - FIXED: Using correct CSS classes */}
+      {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (
         <div className="logout-confirm-overlay" onClick={() => setShowLogoutConfirm(false)}>
           <div className="logout-confirm-card" onClick={(e) => e.stopPropagation()}>
@@ -307,20 +304,7 @@ const AdminDashboard = () => {
                  'All Staff - Manila & Cagayan de Oro Clinics'}
               </small>
             </h2>
-            {activeTab === 'active' && (
-              <button
-                className="action-button primary-button"
-                onClick={() => refreshData()}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M23 4v6h-6"></path>
-                  <path d="M1 20v-6h6"></path>
-                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
-                  <path d="M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                </svg>
-                Refresh All
-              </button>
-            )}
+            {/* REMOVED REFRESH BUTTON FROM ACTIVE TAB */}
             {activeTab === 'revenue' && showRevenueReport && (
               <button
                 className="action-button secondary-button"
@@ -391,7 +375,7 @@ const AdminDashboard = () => {
                           color: '#2c3e50',
                           marginRight: '0.5rem'
                         }}>
-                          Quick Filter:
+                          Quick Date Presets:
                         </span>
                         <button
                           type="button"

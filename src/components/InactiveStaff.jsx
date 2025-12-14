@@ -9,9 +9,10 @@ const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
   const [success, setSuccess] = useState('');
   const [restoringStaff, setRestoringStaff] = useState(null);
   
-  // Search and filter states
+  // Search and filter states - ADDED ROLE FILTER
   const [searchTerm, setSearchTerm] = useState('');
   const [clinicFilter, setClinicFilter] = useState('all');
+  const [roleFilter, setRoleFilter] = useState('all'); // ADDED THIS
 
   const fetchStaff = async () => {
     try {
@@ -51,7 +52,7 @@ const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
     fetchStaff();
   }, [clinicId]);
 
-  // Apply filters whenever search term or clinic filter changes
+  // Apply filters whenever search term or clinic filter or role filter changes - UPDATED
   useEffect(() => {
     let result = staff;
     
@@ -73,8 +74,13 @@ const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
       result = result.filter(staffMember => staffMember.clinic === clinicFilter);
     }
     
+    // Apply role filter - ADDED THIS
+    if (roleFilter !== 'all') {
+      result = result.filter(staffMember => staffMember.role === roleFilter);
+    }
+    
     setFilteredStaff(result);
-  }, [searchTerm, clinicFilter, staff]);
+  }, [searchTerm, clinicFilter, roleFilter, staff]); // ADDED roleFilter
 
   useEffect(() => {
     if (success) {
@@ -131,10 +137,11 @@ const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
     </span>
   );
 
-  // Clear all filters
+  // Clear all filters - UPDATED
   const clearFilters = () => {
     setSearchTerm('');
     setClinicFilter('all');
+    setRoleFilter('all'); // ADDED THIS
   };
 
   if (loading) {
@@ -174,12 +181,12 @@ const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
           <p style={{ fontSize: '0.9rem', color: '#e74c3c', marginTop: '0.5rem', fontWeight: '500' }}>
             {filteredStaff.length} inactive staff member{filteredStaff.length !== 1 ? 's' : ''} found
             {clinicId === 'combined' && ' across both clinics'}
-            {(searchTerm || clinicFilter !== 'all') && ' (filtered)'}
+            {(searchTerm || clinicFilter !== 'all' || roleFilter !== 'all') && ' (filtered)'} {/* UPDATED */}
           </p>
         </div>
       </div>
 
-      {/* Search and Filter Bar */}
+      {/* Search and Filter Bar - UPDATED WITH ROLE FILTER */}
       <div className="filter-bar" style={{ 
         background: 'white', 
         padding: '1rem', 
@@ -236,7 +243,28 @@ const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
           </div>
         )}
         
-        {(searchTerm || clinicFilter !== 'all') && (
+        {/* ADDED ROLE FILTER */}
+        <div style={{ minWidth: '150px' }}>
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.75rem 1rem',
+              border: '2px solid #e9ecef',
+              borderRadius: '8px',
+              fontSize: '0.95rem',
+              background: 'white',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="all">All Roles</option>
+            <option value="Doctor">Doctors Only</option>
+            <option value="Secretary">Secretaries Only</option>
+          </select>
+        </div>
+        
+        {(searchTerm || clinicFilter !== 'all' || roleFilter !== 'all') && ( // UPDATED
           <button
             onClick={clearFilters}
             style={{
@@ -268,16 +296,16 @@ const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
         <div className="empty-state">
           <div className="empty-state-icon">✅</div>
           <p className="empty-state-text">
-            {searchTerm || clinicFilter !== 'all'
+            {searchTerm || clinicFilter !== 'all' || roleFilter !== 'all' // UPDATED
               ? 'No inactive staff members match your search criteria' 
               : 'No inactive staff members'}
           </p>
           <p className="empty-state-subtext">
-            {searchTerm || clinicFilter !== 'all'
+            {searchTerm || clinicFilter !== 'all' || roleFilter !== 'all' // UPDATED
               ? 'Try adjusting your search or filters' 
               : 'All staff are currently active'}
           </p>
-          {(searchTerm || clinicFilter !== 'all') && (
+          {(searchTerm || clinicFilter !== 'all' || roleFilter !== 'all') && ( // UPDATED
             <button
               onClick={clearFilters}
               className="action-button secondary-button"
