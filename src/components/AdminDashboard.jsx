@@ -329,6 +329,7 @@ const AdminDashboard = () => {
               combinedStats={combinedStats}
               individualStats={individualStats}
               onRefresh={refreshData}
+               revenueData={revenueData}
             />
           ) : activeTab === 'active' ? (
             <ActiveStaff clinicId="combined" onStaffUpdated={refreshData} />

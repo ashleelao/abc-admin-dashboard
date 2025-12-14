@@ -32,14 +32,25 @@ const ActiveStaff = ({ clinicId, onStaffUpdated }) => {
           ...(cdoData?.staff || []).map(staffMember => ({ ...staffMember, clinic: 'CDO' }))
         ];
         
-        setStaff(combinedData);
-        setFilteredStaff(combinedData);
+        // Sort alphabetically by full_name
+        const sortedData = combinedData.sort((a, b) => 
+          (a.full_name || '').localeCompare(b.full_name || '')
+        );
+        
+        setStaff(sortedData);
+        setFilteredStaff(sortedData);
       } else {
         const data = await api.getActiveStaff(clinicId);
         const staffData = Array.isArray(data) ? data : (data?.staff || []);
         const staffWithClinic = staffData.map(staffMember => ({ ...staffMember, clinic: clinicId }));
-        setStaff(staffWithClinic);
-        setFilteredStaff(staffWithClinic);
+        
+        // Sort alphabetically by full_name
+        const sortedData = staffWithClinic.sort((a, b) => 
+          (a.full_name || '').localeCompare(b.full_name || '')
+        );
+        
+        setStaff(sortedData);
+        setFilteredStaff(sortedData);
       }
       
       setError('');
@@ -80,6 +91,11 @@ const ActiveStaff = ({ clinicId, onStaffUpdated }) => {
     if (roleFilter !== 'all') {
       result = result.filter(staffMember => staffMember.role === roleFilter);
     }
+    
+    // Sort alphabetically
+    result = result.sort((a, b) => 
+      (a.full_name || '').localeCompare(b.full_name || '')
+    );
     
     setFilteredStaff(result);
   }, [searchTerm, clinicFilter, roleFilter, staff]);
@@ -267,7 +283,7 @@ const ActiveStaff = ({ clinicId, onStaffUpdated }) => {
             </svg>
             <input
               type="text"
-              placeholder="Search by name, email, ID, department, or specialization..."
+              placeholder="Search by name, email, ID or specialization..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
@@ -436,10 +452,6 @@ const ActiveStaff = ({ clinicId, onStaffUpdated }) => {
                 <div className="info-item">
                   <span className="info-label">Contact</span>
                   <span className="info-value">{staffMember.contact_no || 'N/A'}</span>
-                </div>
-                <div className="info-item">
-                  <span className="info-label">Department</span>
-                  <span className="info-value">{staffMember.department || 'Not specified'}</span>
                 </div>
                 {staffMember.specialization && (
                   <div className="info-item">

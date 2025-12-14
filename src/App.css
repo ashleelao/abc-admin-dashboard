@@ -3833,4 +3833,39 @@ body {
   color: #7f8c8d;
   margin-top: 0.25rem;
 }
+/* Add to App.css for clinic cards */
+.clinic-cards {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 1rem !important;
+  margin-bottom: 1.5rem !important;
+}
 
+.clinic-card {
+  background: #f8f9fa !important;
+  padding: 1.5rem !important;
+  border-radius: 8px !important;
+  text-align: center !important;
+  border: 1px solid #e9ecef !important;
+  transition: transform 0.3s ease !important;
+}
+
+.clinic-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.clinic-card .card-number {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  color: #2c3e50 !important;
+  margin-bottom: 0.5rem !important;
+  display: block !important;
+}
+
+.clinic-card .card-label {
+  font-size: 0.9rem !important;
+  color: #7f8c8d !important;
+  font-weight: 500 !important;
+  display: block !important;
+}

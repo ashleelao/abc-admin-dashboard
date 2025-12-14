@@ -29,14 +29,25 @@ const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
           ...(cdoData?.staff || []).map(staffMember => ({ ...staffMember, clinic: 'CDO' }))
         ];
         
-        setStaff(combinedData);
-        setFilteredStaff(combinedData);
+        // Sort alphabetically by full_name
+        const sortedData = combinedData.sort((a, b) => 
+          (a.full_name || '').localeCompare(b.full_name || '')
+        );
+        
+        setStaff(sortedData);
+        setFilteredStaff(sortedData);
       } else {
         const data = await api.getInactiveStaff(clinicId);
         const staffData = Array.isArray(data) ? data : (data?.staff || []);
         const staffWithClinic = staffData.map(staffMember => ({ ...staffMember, clinic: clinicId }));
-        setStaff(staffWithClinic);
-        setFilteredStaff(staffWithClinic);
+        
+        // Sort alphabetically by full_name
+        const sortedData = staffWithClinic.sort((a, b) => 
+          (a.full_name || '').localeCompare(b.full_name || '')
+        );
+        
+        setStaff(sortedData);
+        setFilteredStaff(sortedData);
       }
       
       setError('');
@@ -78,6 +89,11 @@ const InactiveStaff = ({ clinicId, onStaffUpdated }) => {
     if (roleFilter !== 'all') {
       result = result.filter(staffMember => staffMember.role === roleFilter);
     }
+    
+    // Sort alphabetically
+    result = result.sort((a, b) => 
+      (a.full_name || '').localeCompare(b.full_name || '')
+    );
     
     setFilteredStaff(result);
   }, [searchTerm, clinicFilter, roleFilter, staff]); // ADDED roleFilter
