@@ -9,12 +9,9 @@ const StaffForm = ({ onSubmit, initialData, clinicId, onCancel, isCombinedView =
     contact_no: '',
     specialization: '',
     license_no: '',
-    assigned_doctor_id: '',
-    department: '',
     clinic_id: clinicId || 'MNL' // NEW: Default to clinicId prop or MNL
   });
   const [loading, setLoading] = useState(false);
-  const [doctors, setDoctors] = useState([]);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -26,29 +23,10 @@ const StaffForm = ({ onSubmit, initialData, clinicId, onCancel, isCombinedView =
         contact_no: initialData.contact_no || '',
         specialization: initialData.specialization || '',
         license_no: initialData.license_no || '',
-        assigned_doctor_id: initialData.assigned_doctor_id || '',
-        department: initialData.department || '',
         clinic_id: initialData.clinic_id || clinicId || 'MNL' // NEW: Include clinic_id from initial data
       });
     }
   }, [initialData, clinicId]);
-
-  useEffect(() => {
-    if (formData.role === 'Secretary') {
-      fetchDoctors();
-    }
-  }, [formData.role, formData.clinic_id]); // UPDATED: Use formData.clinic_id instead of clinicId prop
-
-  const fetchDoctors = async () => {
-    try {
-      // Use the clinic_id from formData if in combined view, otherwise use the clinicId prop
-      const selectedClinicId = isCombinedView ? formData.clinic_id : clinicId;
-      const data = await api.getDoctors(selectedClinicId);
-      setDoctors(data.staff || []);
-    } catch (err) {
-      console.error('Failed to fetch doctors:', err);
-    }
-  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -99,11 +77,6 @@ const StaffForm = ({ onSubmit, initialData, clinicId, onCancel, isCombinedView =
         [name]: ''
       }));
     }
-
-    // If clinic changes and user is secretary, refresh doctors list
-    if (name === 'clinic_id' && formData.role === 'Secretary') {
-      // This will trigger the useEffect to refetch doctors
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -129,6 +102,12 @@ const StaffForm = ({ onSubmit, initialData, clinicId, onCancel, isCombinedView =
           submitData[key] = undefined;
         }
       });
+
+      // Remove fields that are only for doctors when role is secretary
+      if (submitData.role === 'Secretary') {
+        delete submitData.specialization;
+        delete submitData.license_no;
+      }
 
       await onSubmit(submitData);
     } catch (err) {
@@ -180,7 +159,7 @@ const StaffForm = ({ onSubmit, initialData, clinicId, onCancel, isCombinedView =
         <small className="form-hint">
           {isDoctor 
             ? 'Doctors require specialization and license number' 
-            : 'Secretaries can be assigned to doctors'}
+            : 'Secretaries will have basic staff information only'}
         </small>
       </div>
 
@@ -227,7 +206,7 @@ const StaffForm = ({ onSubmit, initialData, clinicId, onCancel, isCombinedView =
         <small className="form-hint">Philippines format: +63-XXX-XXX-XXXX</small>
       </div>
 
-      {isDoctor ? (
+      {isDoctor && (
         <>
           <div className="form-group">
             <label className="form-label required">Specialization</label>
@@ -257,44 +236,10 @@ const StaffForm = ({ onSubmit, initialData, clinicId, onCancel, isCombinedView =
             {errors.license_no && <span className="form-error">{errors.license_no}</span>}
           </div>
         </>
-      ) : (
-        <div className="form-group">
-          <label className="form-label">Assigned Doctor</label>
-          <select
-            name="assigned_doctor_id"
-            value={formData.assigned_doctor_id}
-            onChange={handleChange}
-            className="form-select"
-            disabled={loading || doctors.length === 0}
-          >
-            <option value="">Select a doctor (optional)</option>
-            {doctors.map(doctor => (
-              <option key={doctor.staff_id} value={doctor.staff_id}>
-                {doctor.full_name} ({doctor.specialization})
-              </option>
-            ))}
-          </select>
-          <small className="form-hint">
-            {doctors.length === 0 
-              ? `No doctors available in ${formData.clinic_id === 'MNL' ? 'Manila' : 'CDO'} clinic`
-              : 'Optional: Assign secretary to specific doctor'}
-          </small>
-        </div>
       )}
 
-      <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-        <label className="form-label">Department</label>
-        <input
-          type="text"
-          name="department"
-          value={formData.department}
-          onChange={handleChange}
-          className="form-input"
-          placeholder={isDoctor ? "e.g., Cardiology Department" : "e.g., Administration"}
-          disabled={loading}
-        />
-        <small className="form-hint">Optional department or unit assignment</small>
-      </div>
+      {/* REMOVED: Department field completely */}
+      {/* REMOVED: Assigned Doctor field for secretaries */}
 
       <div className="form-group" style={{ gridColumn: '1 / -1' }}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' }}>
